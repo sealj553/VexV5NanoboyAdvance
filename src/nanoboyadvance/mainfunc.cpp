@@ -53,7 +53,7 @@ void updateInput();
 
 int start_emulator() {
     //int scale = 1;
-    //todo make game chooser
+    //TODO: make game chooser
     std::string rom_path = "/usd/game.gba";
 
     g_ini = new INI("/usd/config.ini");
@@ -127,16 +127,35 @@ int start_emulator() {
 }
 
 void drawFrame(){
-    // send generated frame to texture
-    //SDL_UpdateTexture(g_texture, NULL, fbuffer, 240 * sizeof(u32));
-    //SDL_RenderCopy(g_renderer, g_texture, nullptr, nullptr);
 
+#define ARGB8888_R(color) (uint8_t((color & 0x00FF0000) >> 16))
+#define ARGB8888_G(color) (uint8_t((color & 0x0000FF00) >> 8))
+#define ARGB8888_B(color) (uint8_t((color & 0x000000FF)))
+#define ARGB8888_A(color) (uint8_t((color & 0xFF000000) >> 24))
+
+    for(int y = 0; y < g_height; ++y){
+        for(int x = 0; x < g_width; ++x){
+            u32 col = fbuffer[y * g_width + x];
+
+            lv_color_t color = { 
+                ARGB8888_B(col),
+                ARGB8888_G(col),
+                ARGB8888_R(col),
+                0
+            };
+
+            //TODO: add center offset and maybe scale
+            (*framebuffer).buf[y * LV_HOR_RES + x] = color;
+        }
+    }
+
+    lv_vdb_flush();
 }
 
 void setupWindow() {
     framebuffer = lv_vdb_get();
+    memset((*framebuffer).buf, 0, LV_HOR_RES * LV_VER_RES * sizeof(lv_color_t));
 }
-
 
 void updateInput(){
     using namespace pros;
