@@ -2,7 +2,7 @@ ARCHTUPLE=arm-none-eabi-
 DEVICE=VEX EDR V5
 
 MFLAGS=-mcpu=cortex-a9 -mfpu=neon-fp16 -mfloat-abi=softfp
-CPPFLAGS=-D_POSIX_THREADS -D_UNIX98_THREAD_MUTEX_ATTRIBUTES -Os -Isrc/nanoboyadvance
+CPPFLAGS=-D_POSIX_THREADS -D_UNIX98_THREAD_MUTEX_ATTRIBUTES -Os -Wfatal-errors -Isrc/nanoboyadvance
 GCCFLAGS=-ffunction-sections -fdata-sections -fdiagnostics-color
 
 WARNFLAGS+=
