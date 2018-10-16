@@ -26,7 +26,6 @@
 
 #include "version.hpp"
 
-#include "mainfunc.hpp"
 #include "api.h"
 
 using namespace std;

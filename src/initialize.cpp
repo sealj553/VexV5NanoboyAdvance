@@ -1,13 +1,13 @@
 #include "main.h"
 
-#include "nanoboyadvance/mainfunc.hpp"
-
 /**
  * Runs initialization code. This occurs as soon as the program is started.
  *
  * All other competition modes are blocked by initialize; it is recommended
  * to keep execution time for this mode under a few seconds.
  */
+
+extern int start_emulator();
 void initialize() {
     start_emulator();
     while(1);
