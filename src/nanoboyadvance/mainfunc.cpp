@@ -139,67 +139,16 @@ void setupWindow() {
 
 
 void updateInput(){
-
     using namespace pros;
-    controller_get_digital(E_CONTROLLER_MASTER, E_CONTROLLER_DIGITAL_L1);
-    controller_get_digital(E_CONTROLLER_MASTER, E_CONTROLLER_DIGITAL_L2);
-    controller_get_digital(E_CONTROLLER_MASTER, E_CONTROLLER_DIGITAL_R1);
-    controller_get_digital(E_CONTROLLER_MASTER, E_CONTROLLER_DIGITAL_R2);
-    controller_get_digital(E_CONTROLLER_MASTER, E_CONTROLLER_DIGITAL_UP);
-    controller_get_digital(E_CONTROLLER_MASTER, E_CONTROLLER_DIGITAL_DOWN);
-    controller_get_digital(E_CONTROLLER_MASTER, E_CONTROLLER_DIGITAL_LEFT);
-    controller_get_digital(E_CONTROLLER_MASTER, E_CONTROLLER_DIGITAL_RIGHT);
-    controller_get_digital(E_CONTROLLER_MASTER, E_CONTROLLER_DIGITAL_X);
-    controller_get_digital(E_CONTROLLER_MASTER, E_CONTROLLER_DIGITAL_B);
-    controller_get_digital(E_CONTROLLER_MASTER, E_CONTROLLER_DIGITAL_Y);
-    controller_get_digital(E_CONTROLLER_MASTER, E_CONTROLLER_DIGITAL_A);
 
-
-/*
-    while (SDL_PollEvent(&event)) {
-        if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
-            int  num;
-            bool released = event.type == SDL_KEYUP;
-
-            SDL_KeyboardEvent* key_event = (SDL_KeyboardEvent*)(&event);
-
-            switch (key_event->keysym.sym) {
-                case SDLK_z:
-                case SDLK_y:         num = (1<<0); break;
-                case SDLK_x:         num = (1<<1); break;
-                case SDLK_BACKSPACE: num = (1<<2); break;
-                case SDLK_RETURN:    num = (1<<3); break;
-                case SDLK_RIGHT:     num = (1<<4); break;
-                case SDLK_LEFT:      num = (1<<5); break;
-                case SDLK_UP:        num = (1<<6); break;
-                case SDLK_DOWN:      num = (1<<7); break;
-                case SDLK_w:         num = (1<<8); break;
-                case SDLK_q:         num = (1<<9); break;
-                case SDLK_SPACE:
-                                     if (released) {
-                                         g_config.fast_forward = false;
-                                     } else {
-                                         // prevent more than one update!
-                                         if (g_config.fast_forward) {
-                                             continue;
-                                         }
-                                         g_config.fast_forward = true;
-                                     }
-                                     continue;
-                case SDLK_F9:
-                                     g_emu.reset();
-                                     continue;
-                default:
-                                     continue;
-            }
-
-            if (released) {
-                *keyinput |= num;
-            } else {
-                *keyinput &= ~num;
-            }
-        }
-    }
-*/
-
+    if(controller_get_digital(E_CONTROLLER_MASTER, E_CONTROLLER_DIGITAL_A))     (*keyinput) = (1<<0); //a 
+    if(controller_get_digital(E_CONTROLLER_MASTER, E_CONTROLLER_DIGITAL_B))     (*keyinput) = (1<<1); //b
+    if(controller_get_digital(E_CONTROLLER_MASTER, E_CONTROLLER_DIGITAL_Y))     (*keyinput) = (1<<2); //select
+    if(controller_get_digital(E_CONTROLLER_MASTER, E_CONTROLLER_DIGITAL_X))     (*keyinput) = (1<<3); //start
+    if(controller_get_digital(E_CONTROLLER_MASTER, E_CONTROLLER_DIGITAL_RIGHT)) (*keyinput) = (1<<4); //right
+    if(controller_get_digital(E_CONTROLLER_MASTER, E_CONTROLLER_DIGITAL_LEFT))  (*keyinput) = (1<<5); //left
+    if(controller_get_digital(E_CONTROLLER_MASTER, E_CONTROLLER_DIGITAL_UP))    (*keyinput) = (1<<6); //up
+    if(controller_get_digital(E_CONTROLLER_MASTER, E_CONTROLLER_DIGITAL_DOWN))  (*keyinput) = (1<<7); //down
+    if(controller_get_digital(E_CONTROLLER_MASTER, E_CONTROLLER_DIGITAL_R1))    (*keyinput) = (1<<8); //rb
+    if(controller_get_digital(E_CONTROLLER_MASTER, E_CONTROLLER_DIGITAL_L1))    (*keyinput) = (1<<9); //lb
 }
