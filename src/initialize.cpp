@@ -10,6 +10,7 @@
  */
 void initialize() {
     start_emulator();
+    while(1);
 }
 
 /**

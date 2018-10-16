@@ -25,7 +25,9 @@
 
 #include <map>
 #include <string>
+#ifdef DEBUG
 #include "third_party/fmt/printf.h"
+#endif
 
 namespace Util {
     

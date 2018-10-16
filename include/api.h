@@ -60,7 +60,7 @@
 #include "pros/llemu.hpp"
 #include "pros/misc.hpp"
 #include "pros/motors.hpp"
-//#include "pros/rtos.hpp"
+#include "pros/rtos.hpp"
 #include "pros/vision.hpp"
 #endif
 

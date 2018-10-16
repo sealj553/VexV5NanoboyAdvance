@@ -23,10 +23,10 @@
 
 #include <stdint.h>
 
-//#ifdef __cplusplus
-//extern "C" {
-//namespace pros {
-//#endif
+#ifdef __cplusplus
+extern "C" {
+namespace pros {
+#endif
 
 // The highest priority that can be assigned to a task. Beware of deadlock.
 #define TASK_PRIORITY_MAX 16
@@ -113,9 +113,9 @@ typedef void* mutex_t;
 #define CURRENT_TASK ((task_t)NULL)
 #endif
 
-//#ifdef __cplusplus
-//namespace c {
-//#endif
+#ifdef __cplusplus
+namespace c {
+#endif
 
 /**
  * Gets the number of milliseconds since PROS initialized.
@@ -393,10 +393,10 @@ bool mutex_take(mutex_t mutex, uint32_t timeout);
  */
 bool mutex_give(mutex_t mutex);
 
-//#ifdef __cplusplus
-//}  // namespace c
-//}  // namespace pros
-//}
-//#endif
+#ifdef __cplusplus
+}  // namespace c
+}  // namespace pros
+}
+#endif
 
 #endif  // _PROS_RTOS_H_
