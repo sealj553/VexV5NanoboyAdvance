@@ -5,6 +5,9 @@ This is a port of [NanoboyAdvance](https://github.com/flerovii/NanoboyAdvance) f
 
 This is a work in progress. I'm working on improving the performance. It currently can't save games.
 
+![](https://raw.githubusercontent.com/sealj553/VexV5NanoboyAdvance/master/img/boot.jpg)
+![](https://raw.githubusercontent.com/sealj553/VexV5NanoboyAdvance/master/img/zelda.jpg)
+
 ## How to use
 * Compile and upload the project to the V5
 * Add `bios.bin` to the microSD card
