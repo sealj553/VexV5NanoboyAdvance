@@ -13,5 +13,10 @@
  * operator control task will be stopped. Re-enabling the robot will restart the
  * task, not resume it from where it left off.
  */
+extern int start_emulator();
+
+using namespace pros;
+
 void opcontrol() {
+    Task gba((task_fn_t)start_emulator, NULL, TASK_PRIORITY_DEFAULT + 2, TASK_STACK_DEPTH_DEFAULT, "GBA");
 }

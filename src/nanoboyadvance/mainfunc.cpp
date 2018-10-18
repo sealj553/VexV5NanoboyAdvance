@@ -42,7 +42,6 @@ u32 fbuffer[240 * 160];
 
 Config   g_config;
 Emulator g_emu(&g_config);
-INI*     g_ini;
 
 const std::string g_version_title = "NanoboyAdvance " + std::to_string(VERSION_MAJOR) + "." + std::to_string(VERSION_MINOR);
 
@@ -55,16 +54,14 @@ int start_emulator() {
     //TODO: make game chooser
     std::string rom_path = "/usd/game.gba";
 
-    g_ini = new INI("/usd/config.ini");
-
     // [Emulation]
     g_config.bios_path  = "/usd/bios.bin";
-    g_config.multiplier = g_ini->getInteger("Emulation", "fastforward");
+    g_config.multiplier = 10;
 
     // [Video]
-    //scale                  = g_ini->getInteger("Video", "scale");
-    //g_config.darken_screen = g_ini->getInteger("Video", "darken"); // boolean!
-    g_config.frameskip     = g_ini->getInteger("Video", "frameskip");
+    //scale                  = 1;
+    //g_config.darken_screen = 0;
+    g_config.frameskip     = 0;
 
     //if (scale < 1) scale = 1;
 
@@ -72,6 +69,7 @@ int start_emulator() {
 
     g_emu.reloadConfig();
 
+    puts("checking if rom exists");
     if (!File::exists(rom_path)) {
         std::cout << "ROM file not found." << std::endl;
         return -1;
@@ -80,16 +78,19 @@ int start_emulator() {
         std::cout << "BIOS file not found." << std::endl;
         return -1;
     }
+    puts("done");
 
     auto cart = Cartridge::fromFile(rom_path);
 
     g_emu.loadGame(cart);
+    puts("game loaded");
     keyinput = &g_emu.getKeypad();
 
     // setup window
     //g_width  *= scale;
     //g_height *= scale;
     setupWindow();
+    puts("window initialized");
 
     bool running = true;
 
@@ -130,21 +131,25 @@ void drawFrame(){
 #define ARGB8888_R(color) (uint8_t((color & 0x00FF0000) >> 16))
 #define ARGB8888_G(color) (uint8_t((color & 0x0000FF00) >> 8))
 #define ARGB8888_B(color) (uint8_t((color & 0x000000FF)))
-#define ARGB8888_A(color) (uint8_t((color & 0xFF000000) >> 24))
+//#define ARGB8888_A(color) (uint8_t((color & 0xFF000000) >> 24))
+
+    lv_color_t color;
 
     for(int y = 0; y < g_height; ++y){
         for(int x = 0; x < g_width; ++x){
             u32 col = fbuffer[y * g_width + x];
 
-            lv_color_t color = { 
-                ARGB8888_B(col),
-                ARGB8888_G(col),
-                ARGB8888_R(col),
-                0
-            };
+            color.blue = ARGB8888_B(col);
+            color.green = ARGB8888_G(col);
+            color.red = ARGB8888_R(col);
+
+            //figure out why it's not drawing
 
             //TODO: add center offset and maybe scale
-            (*framebuffer).buf[y * LV_HOR_RES + x] = color;
+            framebuffer->buf[y * LV_HOR_RES + x] = color;
+
+            //printf("\n");
+            std::cout << std::endl;
         }
     }
 
@@ -153,7 +158,7 @@ void drawFrame(){
 
 void setupWindow() {
     framebuffer = lv_vdb_get();
-    memset((*framebuffer).buf, 0, LV_HOR_RES * LV_VER_RES * sizeof(lv_color_t));
+    //memset((*framebuffer).buf, 0, LV_HOR_RES * LV_VER_RES * sizeof(lv_color_t));
 }
 
 void updateInput(){

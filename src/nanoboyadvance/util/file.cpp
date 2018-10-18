@@ -42,35 +42,51 @@ namespace Util {
         }
 
         int get_size(string filename) {
+            //ifstream ifs(filename, ios::in | ios::binary | ios::ate);
+            //if (ifs.is_open()) {
+            //    ifs.seekg(0, ios::end);
+            //    return ifs.tellg();
+            //} else {
+            //    perror(filename.c_str());
+            //    throw std::runtime_error("unable to access file: " + filename);
+            //}
 
-            ifstream ifs(filename, ios::in | ios::binary | ios::ate);
-
-            if (ifs.is_open()) {
-                ifs.seekg(0, ios::end);
-                return ifs.tellg();
-            } else {
+            FILE *fp = fopen(filename.c_str(), "r");
+            if(fp == NULL){
                 throw std::runtime_error("unable to access file: " + filename);
             }
+            fseek(fp, 0L, SEEK_END);
+            return ftell(fp);
         }
 
         u8* read_data(string filename) {
-
-            ifstream ifs(filename, ios::in | ios::binary | ios::ate);
-            size_t filesize;
-            u8* data = 0;
-
-            if (ifs.is_open()) {
-                ifs.seekg(0, ios::end);
-                filesize = ifs.tellg();
-                ifs.seekg(0, ios::beg);
-                data = new u8[filesize];
-                ifs.read((char*)data, filesize);
-                ifs.close();
-            } else {
-                throw std::runtime_error("unable to read file: " + filename);
+            int size = get_size(filename);
+            FILE *fp = fopen(filename.c_str(), "r");
+            char *data = new char[size]; 
+            if(fread(data, sizeof(char), size, fp) == 0){
+                printf("unable to read file %s\n", filename.c_str());
+                throw std::runtime_error("unable to read file data: " + filename);
             }
+            fclose(fp);
+            return (u8*)data;
 
-            return data;
+            //ifstream ifs(filename, ios::in | ios::binary | ios::ate);
+            //size_t filesize;
+            //u8* data = 0;
+
+            //if(ifs.is_open()){
+            //    ifs.seekg(0, ios::end);
+            //    filesize = ifs.tellg();
+            //    ifs.seekg(0, ios::beg);
+            //    data = new u8[filesize];
+            //    ifs.read((char*)data, filesize);
+            //    ifs.close();
+            //} else {
+            //    perror(filename.c_str());
+            //    throw std::runtime_error("unable to read file: " + filename);
+            //}
+
+            //return data;
         }
 
         std::string read_as_string(std::string filename) {
@@ -83,7 +99,7 @@ namespace Util {
             ifs.seekg(0, std::ios::beg);
 
             str.assign((std::istreambuf_iterator<char>(ifs)),
-                        std::istreambuf_iterator<char>());
+                    std::istreambuf_iterator<char>());
 
             return str;
         }

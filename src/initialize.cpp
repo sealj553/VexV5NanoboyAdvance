@@ -7,10 +7,7 @@
  * to keep execution time for this mode under a few seconds.
  */
 
-extern int start_emulator();
 void initialize() {
-    start_emulator();
-    while(1);
 }
 
 /**
