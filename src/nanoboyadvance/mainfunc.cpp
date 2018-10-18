@@ -14,8 +14,11 @@ using namespace Util;
 using namespace Core;
 using namespace pros::c;
 
-int g_width  = 240;
-int g_height = 160;
+const int g_width  = 240;
+const int g_height = 160;
+
+const int x_offset = (LV_HOR_RES - g_width)/2;
+const int y_offset = (LV_VER_RES - g_height)/2;
 
 lv_vdb_t *framebuffer;
 u16* keyinput;
@@ -42,16 +45,17 @@ int start_emulator() {
     // [Video]
     //scale                  = 1;
     //g_config.darken_screen = 0;
-    g_config.frameskip = 3;
-    g_config.fast_forward = 0;
+    g_config.frameskip = 0;
+    g_config.fast_forward = 10;
 
     //if (scale < 1) scale = 1;
 
     g_config.framebuffer = fbuffer;
 
+    std::cout << "loading bios" << std::endl;
     g_emu.reloadConfig();
 
-    std::cout << "checking if rom exists" << std::endl;
+    std::cout << "loading rom" << std::endl;
     if (!File::exists(rom_path)) {
         std::cout << "ROM file not found." << std::endl;
         return -1;
@@ -60,88 +64,64 @@ int start_emulator() {
         std::cout << "BIOS file not found." << std::endl;
         return -1;
     }
-    std::cout << "done" << std::endl;
 
+    std::cout << "loading game" << std::endl;
     auto cart = Cartridge::fromFile(rom_path);
 
     g_emu.loadGame(cart);
-    std::cout << "game loaded" << std::endl;
     keyinput = &g_emu.getKeypad();
 
-    // setup window
-    //g_width  *= scale;
-    //g_height *= scale;
+    std::cout << "initializing window" << std::endl;
     setupWindow();
-    std::cout << "window initialized" << std::endl;
 
-    bool running = true;
+    std::cout << "starting emulation" << std::endl;
 
-    int frames = 0;
-    int oldTime = millis();
-
-    while (running) {
-        // generate frame(s)
+    while(true){
         g_emu.runFrame();
-
-        /*
-        // update frame counter
-        frames += g_config.fast_forward ? g_config.multiplier : 1;
-
-        int time = millis();
-        if (time - oldTime >= 1000) {
-            //int percentage = (frames / 60.0) * 100;
-            int rendered_frames = frames;
-
-            if (g_config.fast_forward) {
-                rendered_frames /= g_config.multiplier;
-            }
-
-            oldTime = time;
-            frames = 0;
-        }
-        */
-
         drawFrame();
-        delay(3);
         updateInput();
+        delay(4);
     }
-
-    std::cout << "Quitting..." << std::endl;
 
     return 0;
 }
 
 void drawFrame(){
+    memset(framebuffer->buf, 0, LV_HOR_RES * LV_VER_RES * sizeof(lv_color_t));
 
 #define ARGB8888_R(color) (uint8_t((color & 0x00FF0000) >> 16))
 #define ARGB8888_G(color) (uint8_t((color & 0x0000FF00) >> 8))
 #define ARGB8888_B(color) (uint8_t((color & 0x000000FF)))
-//#define ARGB8888_A(color) (uint8_t((color & 0xFF000000) >> 24))
+    //#define ARGB8888_A(color) (uint8_t((color & 0xFF000000) >> 24))
 
-    lv_color_t color;
+    static u32 scaled[LV_VER_RES * LV_HOR_RES]; 
 
-    for(int y = 0; y < g_height; ++y){
-        for(int x = 0; x < g_width; ++x){
-            u32 col = fbuffer[y * g_width + x];
-
-            color.blue = ARGB8888_B(col);
-            color.green = ARGB8888_G(col);
-            color.red = ARGB8888_R(col);
-
-            //TODO: add center offset and maybe scale
-            framebuffer->buf[y * LV_HOR_RES + x] = color;
-
-            //printf("\n");
-            //std::cout << std::endl;
+    //nearest neighbor scaling
+    const static int w1 = g_width, h1 = g_height, w2 = LV_HOR_RES, h2 = LV_VER_RES;
+    const int x_ratio = ((w1<<16)/w2) + 1;
+    const int y_ratio = ((h1<<16)/h2) + 1;
+    for(int i = 0; i < h2; ++i){
+        for(int j = 0; j < w2; ++j){
+            int x2 = (j*x_ratio)>>16;
+            int y2 = (i*y_ratio)>>16;
+            scaled[(i*w2)+j] = fbuffer[(y2*w1)+x2];
         }
     }
 
+    lv_color_t color;
+    for(int i = 0; i < LV_VER_RES * LV_HOR_RES; ++i){
+        u32 col = scaled[i];
+        color.blue = ARGB8888_B(col);
+        color.green = ARGB8888_G(col);
+        color.red = ARGB8888_R(col);
+        framebuffer->buf[i] = color;
+    }
     lv_vdb_flush();
+
 }
 
 void setupWindow() {
     framebuffer = lv_vdb_get();
-    memset((*framebuffer).buf, 0, LV_HOR_RES * LV_VER_RES * sizeof(lv_color_t));
 }
 
 void updateInput(){
