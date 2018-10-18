@@ -18,5 +18,5 @@ extern int start_emulator();
 using namespace pros;
 
 void opcontrol() {
-    Task gba((task_fn_t)start_emulator, NULL, TASK_PRIORITY_DEFAULT + 2, TASK_STACK_DEPTH_DEFAULT, "GBA");
+    Task gba((task_fn_t)start_emulator, NULL, TASK_PRIORITY_DEFAULT + 4, TASK_STACK_DEPTH_DEFAULT, "GBA");
 }

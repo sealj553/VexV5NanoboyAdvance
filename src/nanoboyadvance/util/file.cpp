@@ -33,10 +33,19 @@ namespace Util {
 
         bool exists(string filename) {
 
-            ifstream ifs(filename);
-            bool exists = ifs.is_open();
+            //ifstream ifs(filename);
+            //bool exists = ifs.is_open();
 
-            ifs.close();
+            //ifs.close();
+
+            //return exists;
+
+            bool exists = true;
+            FILE *fp = fopen(filename.c_str(), "r");
+            if(fp == NULL){
+                exists = false;
+            }
+            fclose(fp);
 
             return exists;
         }

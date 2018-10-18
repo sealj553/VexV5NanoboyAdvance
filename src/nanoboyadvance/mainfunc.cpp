@@ -1,22 +1,3 @@
-/**
- * Copyright (C) 2017 flerovium^-^ (Frederic Meyer)
- *
- * This file is part of NanoboyAdvance.
- *
- * NanoboyAdvance is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * NanoboyAdvance is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with NanoboyAdvance. If not, see <http://www.gnu.org/licenses/>.
- */
-
 #include <string>
 #include <iostream>
 
@@ -56,12 +37,13 @@ int start_emulator() {
 
     // [Emulation]
     g_config.bios_path  = "/usd/bios.bin";
-    g_config.multiplier = 10;
+    g_config.multiplier = 1;
 
     // [Video]
     //scale                  = 1;
     //g_config.darken_screen = 0;
-    g_config.frameskip     = 0;
+    g_config.frameskip = 3;
+    g_config.fast_forward = 0;
 
     //if (scale < 1) scale = 1;
 
@@ -69,7 +51,7 @@ int start_emulator() {
 
     g_emu.reloadConfig();
 
-    puts("checking if rom exists");
+    std::cout << "checking if rom exists" << std::endl;
     if (!File::exists(rom_path)) {
         std::cout << "ROM file not found." << std::endl;
         return -1;
@@ -78,46 +60,49 @@ int start_emulator() {
         std::cout << "BIOS file not found." << std::endl;
         return -1;
     }
-    puts("done");
+    std::cout << "done" << std::endl;
 
     auto cart = Cartridge::fromFile(rom_path);
 
     g_emu.loadGame(cart);
-    puts("game loaded");
+    std::cout << "game loaded" << std::endl;
     keyinput = &g_emu.getKeypad();
 
     // setup window
     //g_width  *= scale;
     //g_height *= scale;
     setupWindow();
-    puts("window initialized");
+    std::cout << "window initialized" << std::endl;
 
     bool running = true;
 
     int frames = 0;
-    int ticks1 = millis();
+    int oldTime = millis();
 
     while (running) {
         // generate frame(s)
         g_emu.runFrame();
 
+        /*
         // update frame counter
         frames += g_config.fast_forward ? g_config.multiplier : 1;
 
-        int ticks2 = millis();
-        if (ticks2 - ticks1 >= 1000) {
-            int percentage = (frames / 60.0) * 100;
+        int time = millis();
+        if (time - oldTime >= 1000) {
+            //int percentage = (frames / 60.0) * 100;
             int rendered_frames = frames;
 
             if (g_config.fast_forward) {
                 rendered_frames /= g_config.multiplier;
             }
 
-            ticks1 = ticks2;
+            oldTime = time;
             frames = 0;
         }
+        */
 
         drawFrame();
+        delay(3);
         updateInput();
     }
 
@@ -143,13 +128,11 @@ void drawFrame(){
             color.green = ARGB8888_G(col);
             color.red = ARGB8888_R(col);
 
-            //figure out why it's not drawing
-
             //TODO: add center offset and maybe scale
             framebuffer->buf[y * LV_HOR_RES + x] = color;
 
             //printf("\n");
-            std::cout << std::endl;
+            //std::cout << std::endl;
         }
     }
 
@@ -158,20 +141,21 @@ void drawFrame(){
 
 void setupWindow() {
     framebuffer = lv_vdb_get();
-    //memset((*framebuffer).buf, 0, LV_HOR_RES * LV_VER_RES * sizeof(lv_color_t));
+    memset((*framebuffer).buf, 0, LV_HOR_RES * LV_VER_RES * sizeof(lv_color_t));
 }
 
 void updateInput(){
     using namespace pros;
+    using namespace Core;
 
-    if(controller_get_digital(E_CONTROLLER_MASTER, E_CONTROLLER_DIGITAL_A))     (*keyinput) = (1<<0); //a 
-    if(controller_get_digital(E_CONTROLLER_MASTER, E_CONTROLLER_DIGITAL_B))     (*keyinput) = (1<<1); //b
-    if(controller_get_digital(E_CONTROLLER_MASTER, E_CONTROLLER_DIGITAL_Y))     (*keyinput) = (1<<2); //select
-    if(controller_get_digital(E_CONTROLLER_MASTER, E_CONTROLLER_DIGITAL_X))     (*keyinput) = (1<<3); //start
-    if(controller_get_digital(E_CONTROLLER_MASTER, E_CONTROLLER_DIGITAL_RIGHT)) (*keyinput) = (1<<4); //right
-    if(controller_get_digital(E_CONTROLLER_MASTER, E_CONTROLLER_DIGITAL_LEFT))  (*keyinput) = (1<<5); //left
-    if(controller_get_digital(E_CONTROLLER_MASTER, E_CONTROLLER_DIGITAL_UP))    (*keyinput) = (1<<6); //up
-    if(controller_get_digital(E_CONTROLLER_MASTER, E_CONTROLLER_DIGITAL_DOWN))  (*keyinput) = (1<<7); //down
-    if(controller_get_digital(E_CONTROLLER_MASTER, E_CONTROLLER_DIGITAL_R1))    (*keyinput) = (1<<8); //rb
-    if(controller_get_digital(E_CONTROLLER_MASTER, E_CONTROLLER_DIGITAL_L1))    (*keyinput) = (1<<9); //lb
+    g_emu.setKeyState(Key::A,       controller_get_digital(E_CONTROLLER_MASTER, E_CONTROLLER_DIGITAL_A));
+    g_emu.setKeyState(Key::B,       controller_get_digital(E_CONTROLLER_MASTER, E_CONTROLLER_DIGITAL_B));
+    g_emu.setKeyState(Key::Start,   controller_get_digital(E_CONTROLLER_MASTER, E_CONTROLLER_DIGITAL_X));
+    g_emu.setKeyState(Key::Select,  controller_get_digital(E_CONTROLLER_MASTER, E_CONTROLLER_DIGITAL_Y));
+    g_emu.setKeyState(Key::Right,   controller_get_digital(E_CONTROLLER_MASTER, E_CONTROLLER_DIGITAL_RIGHT));
+    g_emu.setKeyState(Key::Left,    controller_get_digital(E_CONTROLLER_MASTER, E_CONTROLLER_DIGITAL_LEFT));
+    g_emu.setKeyState(Key::Up,      controller_get_digital(E_CONTROLLER_MASTER, E_CONTROLLER_DIGITAL_UP));
+    g_emu.setKeyState(Key::Down,    controller_get_digital(E_CONTROLLER_MASTER, E_CONTROLLER_DIGITAL_DOWN));
+    g_emu.setKeyState(Key::R,       controller_get_digital(E_CONTROLLER_MASTER, E_CONTROLLER_DIGITAL_R1));
+    g_emu.setKeyState(Key::L,       controller_get_digital(E_CONTROLLER_MASTER, E_CONTROLLER_DIGITAL_L1));
 }
