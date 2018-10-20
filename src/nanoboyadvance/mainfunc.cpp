@@ -87,8 +87,6 @@ int start_emulator() {
 }
 
 void drawFrame(){
-    static u32 scaled[LV_VER_RES * LV_HOR_RES]; 
-
     //nearest neighbor scaling
     const static int w1 = g_width, h1 = g_height, w2 = LV_HOR_RES, h2 = LV_VER_RES;
     const int x_ratio = ((w1<<16)/w2) + 1;
@@ -97,16 +95,12 @@ void drawFrame(){
         for(int j = 0; j < w2; ++j){
             int x2 = (j*x_ratio)>>16;
             int y2 = (i*y_ratio)>>16;
-            scaled[(i*w2)+j] = fbuffer[(y2*w1)+x2];
+            framebuffer->buf[(i*w2)+j].full = fbuffer[(y2*w1)+x2];
+            framebuffer->buf[(i*w2)+j].alpha = 0;
         }
     }
 
-    for(int i = 0; i < LV_VER_RES * LV_HOR_RES; ++i){
-        framebuffer->buf[i].full = scaled[i];
-        framebuffer->buf[i].alpha = 0;
-    }
     lv_vdb_flush();
-
 }
 
 void setupWindow() {
