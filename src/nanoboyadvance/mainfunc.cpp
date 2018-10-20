@@ -77,23 +77,16 @@ int start_emulator() {
     std::cout << "starting emulation" << std::endl;
 
     while(true){
-        g_emu.runFrame();
-        drawFrame();
         updateInput();
-        delay(4);
+        g_emu.runFrame();
+        delay(3);
+        drawFrame();
     }
 
     return 0;
 }
 
 void drawFrame(){
-    memset(framebuffer->buf, 0, LV_HOR_RES * LV_VER_RES * sizeof(lv_color_t));
-
-#define ARGB8888_R(color) (uint8_t((color & 0x00FF0000) >> 16))
-#define ARGB8888_G(color) (uint8_t((color & 0x0000FF00) >> 8))
-#define ARGB8888_B(color) (uint8_t((color & 0x000000FF)))
-    //#define ARGB8888_A(color) (uint8_t((color & 0xFF000000) >> 24))
-
     static u32 scaled[LV_VER_RES * LV_HOR_RES]; 
 
     //nearest neighbor scaling
@@ -108,13 +101,9 @@ void drawFrame(){
         }
     }
 
-    lv_color_t color;
     for(int i = 0; i < LV_VER_RES * LV_HOR_RES; ++i){
-        u32 col = scaled[i];
-        color.blue = ARGB8888_B(col);
-        color.green = ARGB8888_G(col);
-        color.red = ARGB8888_R(col);
-        framebuffer->buf[i] = color;
+        framebuffer->buf[i].full = scaled[i];
+        framebuffer->buf[i].alpha = 0;
     }
     lv_vdb_flush();
 
